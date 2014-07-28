@@ -71,6 +71,7 @@ angular.module('entergrade', [])
 
                 angular.forEach($scope.examList, function(exam) {
                     temp[exam.Name] = stu['edit_' + exam.Name];
+                    stu[exam.Name] = stu['edit_' + exam.Name];
                 });
 
                 storage.push(temp);

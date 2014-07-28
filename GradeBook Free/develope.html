@@ -83,7 +83,7 @@
                                 <input type="number" ng-if="currentExam.Type == 'Number' && !currentExam.Lock" style="width:120px;" min="{{currentExam.Range.Min}}" max="{{currentExam.Range.Max}}" step="1" ng-model="item['edit_'+currentExam.Name]">
                                 <div class="btn-group" ng-if="currentExam.Type == 'Enum' && !currentExam.Lock">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                        {{item[currentExam.Name]}}
+                                        {{item['edit_'+currentExam.Name]}}
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu" role="menu">

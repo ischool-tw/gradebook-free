@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html ng-app="entergrade">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/font-awesome.min.css" rel="stylesheet" />
+    <link href="css/base.css" rel="stylesheet" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/scopetemp.js"></script>
+</head>
+
+<body ng-controller="MainCtrl">
+    <div id="gadget" class="my-page">
+        <h1>
+            GradeBook
+        </h1>
+        <div ng-show="viewType == 'ExamList'">
+            <div ng-show="!inputScore">
+                <div class="btn-group btn-group-sm pull-right" style="margin-bottom:10px;">
+                    <a class="btn btn-default" ng-click="viewType = 'StudentList'"><i class="fa fa-table"></i> 總覽</a>
+                    <a ng-click="showCreateModal()" class="btn btn-primary"><i class="fa fa-plus"></i> 建立</a>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-2"></th>
+                            <th>標題</th>
+                            <th class="col-md-2">類型</th>
+                            <th class="col-md-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in examList">
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a class="btn btn-default" ng-click="lockExam(item)">
+                                        <i class="fa" ng-class="{'fa-lock':item.Lock,'fa-unlock':!item.Lock}"></i> 鎖定
+                                    </a>
+                                    <a class="btn btn-default" ng-click="removeExam($index)">
+                                        <i class="fa fa-trash-o"></i> 刪除
+                                    </a>
+                                </div>
+                            </td>
+                            <td>{{item.Name}}</td>
+                            <td>{{item.Type == 'Text' ? '文字' : (item.Type == 'Number' ? '數字' : '下拉選單')}}</td>
+                            <td>
+                                <a class="btn btn-default btn-sm" ng-click="selectExam(item)">
+                                    <i class="fa fa-edit"></i> 輸入
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div ng-show="inputScore">
+                <div class="btn-group btn-group-sm pull-right" style="margin:0 5px 10px 0;">
+                    <a class="btn btn-primary btn-sm" ng-click="saveStuExam()">
+                        <i class="fa fa-save"></i> 儲存
+                    </a>
+                    <a class="btn btn-default" ng-click="inputScore = false">
+                        <i class="fa fa-save"></i> 取消
+                    </a>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-1">編號</th>
+                            <th class="col-md-2">姓名</th>
+                            <th>{{currentExam.Name}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in studentList">
+                            <td>{{item.SeatNo}}</td>
+                            <td>{{item.StudentName}}</td>
+                            <td>
+                                <input type="text" class="form-control" ng-if="currentExam.Type == 'Text' && !currentExam.Lock" ng-model="item['edit_'+currentExam.Name]">
+                                <input type="number" ng-if="currentExam.Type == 'Number' && !currentExam.Lock" style="width:120px;" min="{{currentExam.Range.Min}}" max="{{currentExam.Range.Max}}" step="1" ng-model="item['edit_'+currentExam.Name]">
+                                <div class="btn-group" ng-if="currentExam.Type == 'Enum' && !currentExam.Lock">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        {{item[currentExam.Name]}}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li ng-repeat="option in currentExam.Option">
+                                            <a ng-click="item['edit_'+currentExam.Name]=option.Label">{{option.Label}}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <span ng-if="currentExam.Lock">{{item[currentExam.Name]}}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div ng-show="viewType == 'StudentList'">
+            <a class="btn btn-default pull-right" style="margin-bottom:10px;" ng-click="viewType = 'ExamList'"><i class="fa fa-list"></i> 返回</a>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-md-1">編號</th>
+                        <th class="col-md-2">姓名</th>
+                        <th ng-repeat="exam in examList">{{exam.Name}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in studentList">
+                        <td>{{item.SeatNo}}</td>
+                        <td>{{item.StudentName}}</td>
+                        <td ng-repeat="exam in examList">{{item[exam.Name]}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title"><i class="fa fa-plus"></i> 建立</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label for="" class="col-sm-2 control-label">標題</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" ng-model="createItem.Name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="col-sm-2 control-label">類型</label>
+                            <div class="col-sm-10">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        {{createItem.Type == 'Text' ? '文字' : (createItem.Type == 'Number' ? '數字' : '下拉選單')}}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>
+                                            <a ng-click="toggleCreateItemType('Text')">文字</a>
+                                        </li>
+                                        <li>
+                                            <a ng-click="toggleCreateItemType('Number')">數字</a>
+                                        </li>
+                                        <li>
+                                            <a ng-click="toggleCreateItemType('Enum')">下拉選單</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="createItem.Type == 'Number'">
+                            <div class="col-sm-10 col-sm-offset-2">
+                                <div class="well row" style="margin:0;">
+                                    <label for="" class="col-sm-3 control-label">最大值</label>
+                                    <div class="col-sm-3">
+                                        <input type="text" class="form-control" ng-model="createItem.Range.Max">
+                                    </div>
+                                    <label for="" class="col-sm-3 control-label">最小值</label>
+                                    <div class="col-sm-3">
+                                        <input type="text" class="form-control" ng-model="createItem.Range.Min">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-if="createItem.Type == 'Enum'">
+                            <div class="col-sm-10 col-sm-offset-2">
+                                <div class="well row" style="margin:0;">
+                                    <div class="input-group" style="margin-bottom:10px;" ng-repeat="item in createItem.Option">
+                                        <span class="input-group-addon">{{$index+1}}.</span>
+                                        <input type="text" class="form-control" ng-model="item.Label">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" ng-click="removeOptionItem($index)"><i class="fa fa-times"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <div class="input-group" style="margin-bottom:10px;">
+                                        <span class="input-group-addon">{{createItem.Option.length+1}}.</span>
+                                        <div style="border:1px solid #ccc; background:#eee; padding:6px; cursor:pointer;" ng-click="addOptionItem()">按一下這裡新增選項</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="alert alert-danger pull-left" style="margin:0; padding:5px;" ng-if="errMsg">{{errMsg}}</div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" ng-click="saveExamItem()">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

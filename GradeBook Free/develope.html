@@ -10,6 +10,7 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/xml2json.js"></script>
     <script src="js/scopetemp.js"></script>
 </head>
 
@@ -41,7 +42,7 @@
                                         <i class="fa" ng-class="{'fa-lock':item.Lock,'fa-unlock':!item.Lock}"></i> 鎖定
                                     </a>
                                     <a class="btn btn-default" ng-click="removeExam($index)">
-                                        <i class="fa fa-trash-o"></i> 刪除
+                                        <i class="fa fa-trash-o"></i> 刪除5
                                     </a>
                                 </div>
                             </td>
@@ -114,7 +115,7 @@
                     <tr ng-repeat="item in studentList">
                         <td>{{item.SeatNo}}</td>
                         <td>{{item.StudentName}}</td>
-                        <td ng-repeat="exam in examList">{{item[exam.Name]}}</td>
+                        <td ng-repeat="exam in examList">{{item['edit_'+exam.Name]}}</td>
                     </tr>
                 </tbody>
             </table>

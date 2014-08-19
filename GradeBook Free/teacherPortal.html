@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script>
+        var next = function () {
+            var redirect_uri = location.href.substring(0, location.href.indexOf('teacherPortal.html')) + "default.html";
+            var application = "demo.ischool.j";
+            var groupid = "196894";
+
+            var param = location.href.substring(location.href.indexOf('?') + 1).split('&');
+            param.forEach(function (pm) {
+                if (pm.split('=')[0] == 'application' && !application)
+                    application = pm.split('=')[1];
+                if (pm.split('=')[0] == 'groupid' && !groupid)
+                    groupid = pm.split('=')[1];
+            });
+            if (application && groupid) {
+                var url = "https://auth.ischool.com.tw/oauth/authorize.php"
+                        + "?client_id=5c322c5e765f86d3193c4c4b1fb10e50"
+                        + "&response_type=token"
+                        + "&redirect_uri=" + encodeURIComponent(redirect_uri)
+                        + "&scope=User.Mail,User.BasicInfo," + application + ":sakura"
+                        + "&state=" + encodeURIComponent("" + application + "/" + groupid);
+                location.assign(url);
+            }
+        }
+    </script>
+</head>
+<body>
+    <img src="/css/images/loading.gif" style="position: fixed; left: 50%; right: 50%; top: 50%; bottom: 50%;margin-top: -50px; margin-left: -50px;" onerror="next();" onload="next();" />
+</body>
+</html>
